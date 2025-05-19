@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { useCartStore } from "@/store/cart-store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,7 +21,7 @@ import {
   Trash2, 
   X 
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useCartStore } from "@/lib/store/cart-store";
 
 export function CartSheet() {
   const {
