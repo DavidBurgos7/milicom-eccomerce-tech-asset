@@ -14,11 +14,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useCartStore } from "@/lib/store/cart-store";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  // Cart store
+  const { toggleCart, getItemsCount } = useCartStore();
+  const itemsCount = getItemsCount();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -103,11 +108,18 @@ export function Navbar() {
             </Button>
 
             {/* Carrito */}
-            <Button variant="ghost" size="icon" className="relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative"
+              onClick={toggleCart}
+            >
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-xs text-white flex items-center justify-center">
-                3
-              </span>
+              {itemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-xs text-white flex items-center justify-center">
+                  {itemsCount}
+                </span>
+              )}
             </Button>
 
             {/* Avatar/Usuario */}

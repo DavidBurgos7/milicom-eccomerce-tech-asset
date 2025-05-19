@@ -2,12 +2,14 @@
 
 import React from "react";
 import { Navbar } from "@/components/navbar";
+import { ProductCard } from "@/components/product-card";
+import { ProductCarousel } from "@/components/product-carousel";
+import { HeroCarousel } from "@/components/hero-carousel";
 import { FilterBar } from "@/components/filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Product } from "@/lib/models/product";
-import { ProductCard, ProductGrid } from "@/components/product-card";
 
 export default function HomePage() {
   const [showFilters, setShowFilters] = React.useState(false);
@@ -296,36 +298,17 @@ export default function HomePage() {
       <Navbar />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Hero Banner */}
-        <section className="mb-12 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 md:p-12">
-          <div className="max-w-2xl">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">
-              Encuentra tu equipo perfecto
-            </h1>
-            <p className="text-lg md:text-xl mb-6 text-blue-100">
-              Descubre los mejores artículos deportivos de las marcas líderes mundiales.
-              Calidad, estilo y rendimiento en un solo lugar.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                Envío gratis desde $50
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                30 días de devolución
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                Garantía oficial
-              </Badge>
-            </div>
-          </div>
-        </section>
+        {/* Hero Carousel */}
+        <HeroCarousel products={featuredProducts} />
 
-        {/* Featured Products Section */}
-        <ProductGrid
+        <Separator className="my-12" />
+
+        {/* Featured Products Section with Carousel */}
+        <ProductCarousel
           products={featuredProducts}
           title="Productos Destacados"
           showViewAll={true}
-          variant="featured"
+          autoplay={true}
         />
 
         <Separator className="my-12" />

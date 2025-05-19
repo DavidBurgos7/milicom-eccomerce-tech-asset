@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/lib/models/product";
+import { useCartStore } from "@/lib/store/cart-store";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +20,9 @@ interface ProductCardProps {
 export function ProductCard({ product, variant = "default" }: ProductCardProps) {
   const [isLiked, setIsLiked] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
+  
+  // Cart store
+  const addItem = useCartStore((state) => state.addItem);
 
   const discountPercentage = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -25,11 +30,20 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
 
   const isFeatured = variant === "featured" || product.isFeatured;
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    addItem(product, 1);
+    
+    toast(`Producto ${product.name} se agregó al carrito`)
+  };
+
   return (
     <Card
       className={cn(
-        "group overflow-hidden border-0 shadow-sm hover:shadow-md transition-all duration-300",
-        isFeatured && "lg:col-span-2"
+        "group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 h-full",
+        isFeatured && "border border-gray-100"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -96,7 +110,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             "absolute bottom-2 left-2 right-2 transition-all duration-200",
             isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
           )}>
-            <Button className="w-full" size="sm">
+            <Button className="w-full" size="sm" onClick={handleAddToCart}>
               <ShoppingCart className="mr-2 h-4 w-4" />
               Agregar al carrito
             </Button>
