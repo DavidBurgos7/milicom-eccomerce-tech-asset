@@ -16,6 +16,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Star, Heart, ShoppingCart } from "lucide-react";
 import { Product } from "@/lib/models/product";
+import { useCartStore } from "@/lib/store/cart-store";
+import { toast } from "sonner";
 
 interface HeroCarouselProps {
   products: Product[];
@@ -24,6 +26,10 @@ interface HeroCarouselProps {
 export function HeroCarousel({ products }: HeroCarouselProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
+  const [isLiked, setIsLiked] = React.useState<Record<number, boolean>>({});
+  
+  // Cart store
+  const addItem = useCartStore((state) => state.addItem);
 
   React.useEffect(() => {
     if (!api) return;
@@ -40,6 +46,19 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
 
     return () => clearInterval(autoplayInterval);
   }, [api]);
+  
+  const handleAddToCart = (product: Product) => {
+    addItem(product, 1);
+    
+    toast(`Producto ${product.name} se agregó al carrito`)
+  };
+  
+  const toggleLike = (productId: number) => {
+    setIsLiked((prev) => ({
+      ...prev,
+      [productId]: !prev[productId]
+    }));
+  };
 
   return (
     <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-50 to-purple-50">
@@ -112,12 +131,26 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
 
                   {/* Actions */}
                   <div className="flex gap-3">
-                    <Button size="lg" className="flex-1">
+                    <Button 
+                      size="lg" 
+                      className="flex-1"
+                      onClick={() => handleAddToCart(product)}
+                    >
                       <ShoppingCart className="mr-2 h-5 w-5" />
                       Agregar al carrito
                     </Button>
-                    <Button variant="outline" size="lg">
-                      <Heart className="h-5 w-5" />
+                    <Button 
+                      variant="outline" 
+                      size="lg"
+                      onClick={() => toggleLike(product.id)}
+                      className={cn(
+                        isLiked[product.id] && "bg-red-50 border-red-200"
+                      )}
+                    >
+                      <Heart className={cn(
+                        "h-5 w-5",
+                        isLiked[product.id] && "fill-red-500 text-red-500"
+                      )} />
                     </Button>
                   </div>
 
