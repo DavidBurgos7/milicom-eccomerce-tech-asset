@@ -21,10 +21,18 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
+  // Estado para manejar la hidratación del carrito
+  const [isMounted, setIsMounted] = React.useState(false);
+
   // Cart store
   const { toggleCart, getItemsCount } = useCartStore();
   const itemsCount = getItemsCount();
 
+  // Evitar hidratación incorrecta inicializando el estado del cliente
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -115,7 +123,8 @@ export function Navbar() {
               onClick={toggleCart}
             >
               <ShoppingCart className="h-5 w-5" />
-              {itemsCount > 0 && (
+              {/* Solo mostrar el contador cuando el componente está montado en el cliente */}
+              {isMounted && itemsCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-xs text-white flex items-center justify-center">
                   {itemsCount}
                 </span>
