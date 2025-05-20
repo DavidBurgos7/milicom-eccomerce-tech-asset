@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCartStore } from "@/lib/store/cart-store";
+import { SearchBar } from "./search-bar";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
 
   // Estado para manejar la hidratación del carrito
   const [isMounted, setIsMounted] = React.useState(false);
@@ -37,10 +38,8 @@ export function Navbar() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Aquí implementarías la lógica de búsqueda
-    console.log("Búsqueda:", searchQuery);
+  const toggleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
   };
 
   const mainMenuItems = [
@@ -86,16 +85,7 @@ export function Navbar() {
 
           {/* Barra de búsqueda - Desktop */}
           <div className="hidden md:flex items-center flex-1 max-w-sm mx-4">
-            <form onSubmit={handleSearch} className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Buscar productos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full"
-              />
-            </form>
+            <SearchBar />
           </div>
 
           {/* Acciones del lado derecho */}
@@ -105,7 +95,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               className="md:hidden"
-              onClick={() => {}}
+              onClick={toggleSearch}
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -173,21 +163,21 @@ export function Navbar() {
           </div>
         </div>
 
+        {/* Barra de búsqueda móvil */}
+        {isSearchOpen && (
+          <div className="md:hidden py-2 border-t">
+            <SearchBar />
+          </div>
+        )}
+
         {/* Menú móvil desplegable */}
         {isMenuOpen && (
           <div className="lg:hidden border-t">
             <div className="px-4 py-6 space-y-4 bg-background">
               {/* Barra de búsqueda móvil */}
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Buscar productos..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-full"
-                />
-              </form>
+              <div className="md:hidden">
+                <SearchBar />
+              </div>
 
               {/* Menú de navegación móvil */}
               <div className="space-y-2">
