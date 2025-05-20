@@ -77,39 +77,7 @@ export default function SearchResultsPage() {
       {searchResults.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {searchResults.map((product) => (
-            // <Link
-            //   key={product.id}
-            //   href={`/product/${product.slug}`}
-            //   className="group border rounded-md overflow-hidden bg-background hover:shadow-md transition-shadow duration-200"
-            // >
-            //   <div className="aspect-square relative">
-            //     <Image
-            //       src={product.image}
-            //       alt={product.name}
-            //       fill
-            //       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            //       className="object-contain p-4"
-            //     />
-            //   </div>
-            //   <div className="p-4">
-            //     <h3 className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors duration-200">
-            //       {product.name}
-            //     </h3>
-            //     <div className="mt-2 flex items-baseline">
-            //       <span className="text-primary font-medium">{formatPrice(product.price)}</span>
-            //       {product.originalPrice && (
-            //         <span className="text-muted-foreground line-through ml-2 text-sm">{formatPrice(product.originalPrice)}</span>
-            //       )}
-            //     </div>
-            //     <p className="mt-1 text-xs text-muted-foreground">
-            //       {product.brand} • {product.category}
-            //     </p>
-            //   </div>
-            // </Link>
-
-            <ProductCard product={product as any} key={product.id} />
-            
-
+          <ProductCard product={product as any} key={product.id} />
           ))}
         </div>
       ) : (
