@@ -152,6 +152,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                 {/* Imagen del producto */}
+                {/* TODO: Cambiar por el caroulsel del hero */}
                 <div className="relative bg-gray-50 rounded-lg overflow-hidden">
                     {product.isOnSale && (
                     <Badge className="absolute top-4 left-4 z-10 bg-destructive hover:bg-destructive">
