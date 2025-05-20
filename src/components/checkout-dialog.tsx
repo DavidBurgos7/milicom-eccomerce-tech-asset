@@ -36,6 +36,8 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart-store";
+import { useOrdersStore} from "@/lib/store/orders-store";
+import { Order, OrderAddress } from "@/lib/models/orders/order";
 
 // Schema para la dirección de envío
 const addressSchema = z.object({
@@ -69,6 +71,8 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
   const tax = totalPrice * 0.1; // 10% de impuestos
   const finalTotal = totalPrice + shippingCost + tax;
 
+  const { addOrder } = useOrdersStore();
+
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
@@ -78,7 +82,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
       city: "",
       state: "",
       zipCode: "",
-      country: "Colombia",
+      country: "",
       phone: "",
       instructions: "",
     },
@@ -95,6 +99,27 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
     const orderNum = 'ORD-' + Date.now().toString(36).toUpperCase();
     setOrderNumber(orderNum);
     setStep('confirmation');
+
+    if (confirmedAddress) {
+      // Crear el nuevo pedido
+      const newOrder: Order = {
+        id: Date.now().toString(),
+        orderNumber: orderNum,
+        date: new Date().toISOString(),
+        status: 'pending',
+        items: [...items],
+        shippingAddress: confirmedAddress as OrderAddress,
+        total: finalTotal,
+        subtotal: totalPrice,
+        tax: tax,
+        shippingCost: shippingCost,
+        paymentMethod: "Tarjeta de crédito", // O el método seleccionado
+        estimatedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // Una semana después
+      };
+      
+      // Añadir el pedido a la tienda
+      addOrder(newOrder);
+    }
     
     // Simular delay de procesamiento
     setTimeout(() => {

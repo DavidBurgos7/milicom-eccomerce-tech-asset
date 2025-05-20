@@ -137,7 +137,9 @@ export function Navbar() {
                   <span>Mi Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <span>Mis Pedidos</span>
+                  <Link href="/orders" className="flex items-center gap-2">
+                    <span>Mis Pedidosss</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <span>Lista de Deseos</span>
