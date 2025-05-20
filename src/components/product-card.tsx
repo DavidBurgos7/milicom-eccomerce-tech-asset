@@ -128,20 +128,19 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
           </div>
 
           <CardContent className="p-4">
+            <Link href={`/product/${product.id}`}>
             {/* Category */}
             <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
               {product.category} • {product.brand}
             </div>
 
             {/* Product Name */}
-            <Link href={`/product/${product.id}`}>
-              <h3 className={cn(
-                "font-medium line-clamp-2 hover:text-primary transition-colors",
-                isFeatured ? "text-lg" : "text-sm"
-              )}>
-                {product.name}
-              </h3>
-            </Link>
+            <h3 className={cn(
+              "font-medium line-clamp-2 hover:text-primary transition-colors",
+              isFeatured ? "text-lg" : "text-sm"
+            )}>
+              {product.name}
+            </h3>
 
             {/* Rating */}
             <div className="flex items-center gap-1 my-2">
@@ -214,6 +213,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
                 {product.description}
               </p>
             )}
+            </Link>
           </CardContent>
         </div>
       </Card>

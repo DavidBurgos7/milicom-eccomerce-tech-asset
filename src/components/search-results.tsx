@@ -29,7 +29,7 @@ export const SearchResults = ({
   const hasMoreResults = results.length > 5;
 
   const handleSeeAllResults = () => {
-    router.push(`/busqueda?q=${encodeURIComponent(query)}`);
+    router.push(`/search?q=${encodeURIComponent(query)}`);
     onClose();
   };
 
