@@ -7,21 +7,16 @@ import Link from "next/link";
 import { ChevronRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ProductSearchResult } from "@/lib/models/product-search-results";
-
-// TODO: reemplazar con tu API real
-const MOCK_PRODUCTS: ProductSearchResult[] = [];
+import { searchProductsByQuery } from "@/lib/search";
+import { formatPrice } from "@/lib/utils";
 
 export default function SearchResultsPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
   
-  // Simular la búsqueda de productos (reemplazar con tu API real)
-  const searchResults = MOCK_PRODUCTS.filter(product => 
-    product.name.toLowerCase().includes(query.toLowerCase()) ||
-    product.sku.toLowerCase().includes(query.toLowerCase())
-  );
+  // Obtener resultados de búsqueda usando nuestra función
+  const searchResults = searchProductsByQuery(query);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +78,7 @@ export default function SearchResultsPage() {
           {searchResults.map((product) => (
             <Link
               key={product.id}
-              href={`/producto/${product.slug}`}
+              href={`/product/${product.slug}`}
               className="group border rounded-md overflow-hidden bg-background hover:shadow-md transition-shadow duration-200"
             >
               <div className="aspect-square relative">
@@ -99,8 +94,14 @@ export default function SearchResultsPage() {
                 <h3 className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors duration-200">
                   {product.name}
                 </h3>
+                <div className="mt-2 flex items-baseline">
+                  <span className="text-primary font-medium">{formatPrice(product.price)}</span>
+                  {product.originalPrice && (
+                    <span className="text-muted-foreground line-through ml-2 text-sm">{formatPrice(product.originalPrice)}</span>
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {product.sku}
+                  {product.brand} • {product.category}
                 </p>
               </div>
             </Link>

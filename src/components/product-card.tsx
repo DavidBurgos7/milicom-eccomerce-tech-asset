@@ -134,7 +134,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             </div>
 
             {/* Product Name */}
-            <Link href={`/producto/${product.id}`}>
+            <Link href={`/product/${product.id}`}>
               <h3 className={cn(
                 "font-medium line-clamp-2 hover:text-primary transition-colors",
                 isFeatured ? "text-lg" : "text-sm"

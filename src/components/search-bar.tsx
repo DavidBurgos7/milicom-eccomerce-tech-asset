@@ -5,11 +5,9 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { searchProductsByQuery } from "@/lib/search";
 import { ProductSearchResult } from "@/lib/models/product-search-results";
 import { SearchResults } from "./search-results";
-
-// TODO: reemplazar con tu API real
-const MOCK_PRODUCTS: ProductSearchResult[] = [];
 
 export function SearchBar() {
   const router = useRouter();
@@ -23,7 +21,7 @@ export function SearchBar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Función para buscar productos
-  const searchProducts = async (query: string) => {
+  const handleSearch = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
       return;
@@ -35,10 +33,8 @@ export function SearchBar() {
       // Simular una llamada a API con un retraso
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      const results = MOCK_PRODUCTS.filter(product => 
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.sku.toLowerCase().includes(query.toLowerCase())
-      );
+      // Usar la función de búsqueda de libs/search
+      const results = searchProductsByQuery(query);
       
       setSearchResults(results);
     } catch (error) {
@@ -55,7 +51,7 @@ export function SearchBar() {
     setSearchQuery(query);
     
     // Buscar productos cuando el usuario escribe
-    searchProducts(query);
+    handleSearch(query);
     
     // Abrir el dropdown cuando hay texto
     setIsDropdownOpen(query.length > 0);
@@ -66,7 +62,7 @@ export function SearchBar() {
     e.preventDefault();
     
     if (searchQuery.trim()) {
-      router.push(`/busqueda?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setIsDropdownOpen(false);
     }
   };

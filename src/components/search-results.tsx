@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { ProductSearchResult } from "@/lib/models/product-search-results";
+import { formatPrice } from "@/lib/utils";
 
 interface SearchResultsProps {
   results: ProductSearchResult[];
@@ -33,7 +34,7 @@ export const SearchResults = ({
   };
 
   const handleProductClick = (productSlug: string) => {
-    router.push(`/producto/${productSlug}`);
+    router.push(`/product/${productSlug}`);
     onClose();
   };
 
@@ -87,7 +88,13 @@ export const SearchResults = ({
             </div>
             <div className="ml-3 flex-grow">
               <h4 className="text-sm font-medium line-clamp-2">{product.name}</h4>
-              <p className="text-xs text-muted-foreground">{product.sku}</p>
+              <div className="flex items-center text-xs">
+                <span className="text-primary font-medium">{formatPrice(product.price)}</span>
+                {product.originalPrice && (
+                  <span className="text-muted-foreground line-through ml-2">{formatPrice(product.originalPrice)}</span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">{product.brand} • {product.category}</p>
             </div>
           </div>
         ))}

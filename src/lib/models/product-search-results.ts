@@ -1,7 +1,10 @@
 export type ProductSearchResult = {
-    id: string;
+    id: number;
     name: string;
     slug: string;
-    sku: string;
+    price: number;
+    originalPrice?: number;
     image: string;
-};
+    category: string;
+    brand: string;
+  };
