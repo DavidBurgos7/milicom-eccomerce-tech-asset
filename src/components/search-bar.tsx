@@ -6,7 +6,7 @@ import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { searchProductsByQuery } from "@/lib/search";
-import { ProductSearchResult } from "@/lib/models/product-search-results";
+import { ProductSearchResult } from "@/lib/models/products/product-search-results";
 import { SearchResults } from "./search-results";
 
 export function SearchBar() {

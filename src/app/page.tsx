@@ -9,7 +9,7 @@ import { FilterBar } from "@/components/filter-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Product } from "@/lib/models/product";
+import { Product } from "@/lib/models/products/product";
 
 export default function HomePage() {
   const [showFilters, setShowFilters] = React.useState(false);

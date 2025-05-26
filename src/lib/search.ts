@@ -1,5 +1,5 @@
 import { mockProducts } from "./data/mocks";
-import { ProductSearchResult } from "./models/product-search-results";
+import { ProductSearchResult } from "./models/products/product-search-results";
 
 // Función para generar un slug a partir del nombre del producto
 function generateSlug(name: string): string {

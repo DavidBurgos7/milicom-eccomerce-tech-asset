@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import { ProductCard } from "@/components/product-card";
 import { cn } from "@/lib/utils";
-import { Product } from "@/lib/models/product";
+import { Product } from "@/lib/models/products/product";
 
 interface ProductCarouselProps {
   products: Product[];

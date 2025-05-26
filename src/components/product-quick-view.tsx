@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Product } from "@/lib/models/product";
+import { Product } from "@/lib/models/products/product";
 import { useCartStore } from "@/lib/store/cart-store";
 import { toast } from "sonner";
 

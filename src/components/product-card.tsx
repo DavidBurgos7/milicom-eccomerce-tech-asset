@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Product } from "@/lib/models/product";
+import { Product } from "@/lib/models/products/product";
 import { useCartStore } from "@/lib/store/cart-store";
 import { toast } from "sonner";
 import { ProductQuickView } from "@/components/product-quick-view";

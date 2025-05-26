@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { ProductSearchResult } from "@/lib/models/product-search-results";
+import { ProductSearchResult } from "@/lib/models/products/product-search-results";
 import { formatPrice } from "@/lib/utils";
 
 interface SearchResultsProps {

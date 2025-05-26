@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { Star, Heart, ShoppingCart } from "lucide-react";
-import { Product } from "@/lib/models/product";
+import { Product } from "@/lib/models/products/product";
 import { useCartStore } from "@/lib/store/cart-store";
 import { toast } from "sonner";
 
