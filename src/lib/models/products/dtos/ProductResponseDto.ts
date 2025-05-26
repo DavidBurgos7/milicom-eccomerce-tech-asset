@@ -19,4 +19,12 @@ export interface ProductResponseDto {
     isFavorite: boolean;
     createdAt: string; // ISO 8601 date string
     updatedAt: string; // ISO 8601 date string
+
+    //TODO: Add this on API calls
+    originalPrice?: number;
+    rating?: number;
+    reviewCount?: number;
+    isOnSale?: boolean;
+    isNew?: boolean;
+    isFeatured?: boolean;
 }
