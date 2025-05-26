@@ -64,7 +64,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             isFeatured ? "aspect-[16/10]" : "aspect-square"
           )}>
             <Image
-              src={product.image}
+              src={product.imageUrl}
               alt={product.name}
               fill
               className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
@@ -185,7 +185,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
                   <div
                     key={index}
                     className="w-4 h-4 rounded-full border border-gray-300"
-                    style={{ backgroundColor: color.toLowerCase() }}
+                    style={{ backgroundColor: color.colorName?.toLowerCase() }}
                   />
                 ))}
                 {product.colors.length > 4 && (
@@ -201,7 +201,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
               <div className="flex items-center gap-1 mt-1">
                 <span className="text-xs text-muted-foreground">Tallas:</span>
                 <span className="text-xs">
-                  {product.sizes.slice(0, 3).join(", ")}
+                  {product.sizes.slice(0, 3).map(sizeObj => sizeObj.size).join(", ")}
                   {product.sizes.length > 3 && ` +${product.sizes.length - 3}`}
                 </span>
               </div>

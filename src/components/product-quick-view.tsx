@@ -50,9 +50,9 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
 
   // Simular múltiples imágenes (normalmente vendrían del producto)
   const productImages = [
-    product.image,
-    product.image.replace("/400/400", "/400/399"), // Truco para simular diferentes imágenes
-    product.image.replace("/400/400", "/399/400"),
+    product.imageUrl,
+    product.imageUrl.replace("/400/400", "/400/399"), // Truco para simular diferentes imágenes
+    product.imageUrl.replace("/400/400", "/399/400"),
   ];
 
   // Función para agregar al carrito
@@ -168,7 +168,7 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
                       key={star}
                       className={cn(
                         "h-4 w-4",
-                        star <= Math.floor(product.rating)
+                        star <= Math.floor(product.rating ?? 0)
                           ? "text-yellow-400 fill-yellow-400"
                           : "text-gray-300"
                       )}
@@ -218,7 +218,7 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
                           ? "border-primary ring-2 ring-primary/20"
                           : "border-gray-200 hover:border-gray-300"
                       )}
-                      style={{ backgroundColor: color.toLowerCase() }}
+                      style={{ backgroundColor: color.colorName?.toLowerCase() }}
                       onClick={() => setSelectedColor(color)}
                     />
                   ))}

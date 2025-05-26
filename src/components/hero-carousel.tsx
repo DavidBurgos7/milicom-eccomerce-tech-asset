@@ -98,7 +98,7 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
                           key={i}
                           className={cn(
                             "h-4 w-4",
-                            i < Math.floor(product.rating)
+                            i < Math.floor(product.rating ?? 0)
                               ? "text-yellow-400 fill-yellow-400"
                               : "text-gray-300"
                           )}
@@ -171,7 +171,7 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
                 <div className="relative">
                   <div className="aspect-square relative bg-white rounded-lg shadow-lg overflow-hidden">
                     <Image
-                      src={product.image}
+                      src={product.imageUrl}
                       alt={product.name}
                       fill
                       className="object-contain p-8"
