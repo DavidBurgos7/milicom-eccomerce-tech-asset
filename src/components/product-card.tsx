@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
+import { Heart, ShoppingCart, Star, Eye, CameraOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product } from "@/lib/models/products/product";
 import { useCartStore } from "@/lib/store/cart-store";
@@ -17,6 +17,8 @@ interface ProductCardProps {
   product: Product;
   variant?: "default" | "featured";
 }
+
+const DEFAULT_PRODUCT_IMG_PLACEHOLDER: string = "/api/placeholder/400/400";
 
 export function ProductCard({ product, variant = "default" }: ProductCardProps) {
   const [isLiked, setIsLiked] = React.useState(false);
@@ -63,13 +65,20 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             "relative bg-gray-50",
             isFeatured ? "aspect-[16/10]" : "aspect-square"
           )}>
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
-            />
-            
+
+            { product.imageUrl === DEFAULT_PRODUCT_IMG_PLACEHOLDER ? (
+              <div className="flex items-center justify-center h-full">
+                <CameraOff className="text-gray-500" size={150}/>
+              </div>
+            ) : (
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+            )}
+
             {/* Badges */}
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               {product.isNew && (
@@ -150,7 +159,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
                     key={i}
                     className={cn(
                       "h-3 w-3",
-                      i < Math.floor(product.rating)
+                      i < Math.floor(product.rating || 0)
                         ? "text-yellow-400 fill-yellow-400"
                         : "text-gray-300"
                     )}
@@ -185,7 +194,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
                   <div
                     key={index}
                     className="w-4 h-4 rounded-full border border-gray-300"
-                    style={{ backgroundColor: color.colorName?.toLowerCase() }}
+                    style={{ backgroundColor: color?.colorName?.toLowerCase() }}
                   />
                 ))}
                 {product.colors.length > 4 && (

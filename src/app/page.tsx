@@ -24,7 +24,7 @@ export default function HomePage() {
   );
 
   // Datos de ejemplo para productos destacados
-  const featuredProducts: Product[] = [];
+  const featuredProducts: Product[] = products || [];
 
   // Datos de ejemplo para todos los productos
   const allProducts: Product[] = products || [];

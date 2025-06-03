@@ -21,8 +21,8 @@ interface ProductQuickViewProps {
 }
 
 export function ProductQuickView({ product, open, onOpenChange }: ProductQuickViewProps) {
-  const [selectedSize, setSelectedSize] = React.useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = React.useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = React.useState<any | null>(null);
+  const [selectedColor, setSelectedColor] = React.useState<any | null>(null);
   const [quantity, setQuantity] = React.useState(1);
   const [isLiked, setIsLiked] = React.useState(false);
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
@@ -211,21 +211,21 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
                 <div className="flex gap-2">
                   {product.colors.map((color) => (
                     <button
-                      key={color}
+                      key={color.id}
                       className={cn(
                         "w-8 h-8 rounded-full border-2",
                         selectedColor === color
                           ? "border-primary ring-2 ring-primary/20"
                           : "border-gray-200 hover:border-gray-300"
                       )}
-                      style={{ backgroundColor: color.colorName?.toLowerCase() }}
+                      style={{ backgroundColor: color?.colorName?.toLowerCase() }}
                       onClick={() => setSelectedColor(color)}
                     />
                   ))}
                 </div>
                 {selectedColor && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Seleccionado: {selectedColor}
+                    Seleccionado: {selectedColor?.colorName}
                   </p>
                 )}
               </div>
@@ -240,28 +240,34 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
                   onValueChange={setSelectedSize as any}
                   className="flex flex-wrap gap-2"
                 >
-                  {product.sizes.map((size) => (
-                    <div key={size} className="flex items-center">
+                  {product.sizes.map((sizeObj) => (
+                    <div key={sizeObj.id} className="flex items-center">
                       <RadioGroupItem 
-                        value={size} 
-                        id={`size-${size}`}
+                        value={sizeObj} 
+                        id={`size-${sizeObj.size}`}
                         className="hidden"
                       />
                       <Label
-                        htmlFor={`size-${size}`}
+                        htmlFor={`size-${sizeObj.size}`}
                         className={cn(
                           "flex h-10 w-10 items-center justify-center rounded-md border bg-background text-sm",
                           "hover:border-primary cursor-pointer",
-                          selectedSize === size 
-                            ? "border-primary bg-primary/10 font-medium" 
+                          selectedSize?.size === sizeObj.size 
+                            ? "border-primary bg-primary text-white font-medium" 
                             : "border-input"
                         )}
                       >
-                        {size}
+                        {sizeObj.size}
                       </Label>
+                      
                     </div>
                   ))}
                 </RadioGroup>
+                {selectedSize && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Seleccionado: {selectedSize?.size}
+                  </p>
+                )}
               </div>
             )}
 
