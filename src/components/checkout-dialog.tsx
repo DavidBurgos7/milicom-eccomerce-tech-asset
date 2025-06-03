@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -38,6 +38,10 @@ import {
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrdersStore} from "@/lib/store/orders-store";
 import { Order, OrderAddress } from "@/lib/models/orders/order";
+import { useApi } from "@/hooks/useApi";
+import { orderService } from "@/services/order-service";
+import { OrderCreateRequestDto } from "@/lib/models/orders/dtos/OrderCreateRequestDto";
+import { OrderResponseDto } from "@/lib/models/orders/dtos/OrderResponseDto";
 
 // Schema para la dirección de envío
 const addressSchema = z.object({
@@ -48,7 +52,7 @@ const addressSchema = z.object({
   state: z.string().min(2, "El estado/provincia es requerido"),
   zipCode: z.string().min(3, "El código postal es requerido"),
   country: z.string().min(2, "El país es requerido"),
-  phone: z.string().min(10, "Número de teléfono válido requerido"),
+  phone: z.string().min(8, "Número de teléfono válido requerido"),
   instructions: z.string().optional(),
 });
 
@@ -61,10 +65,13 @@ interface CheckoutDialogProps {
 
 export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
   const { items, getTotalPrice, clearCart } = useCartStore();
-  const [step, setStep] = React.useState<'address' | 'review' | 'confirmation'>('address');
-  const [orderNumber, setOrderNumber] = React.useState<string>('');
-  const [isEditingAddress, setIsEditingAddress] = React.useState(false);
-  const [confirmedAddress, setConfirmedAddress] = React.useState<AddressFormValues | null>(null);
+  const [step, setStep] = useState<'address' | 'review' | 'confirmation'>('address');
+  const [orderNumber, setOrderNumber] = useState<string>('');
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [confirmedAddress, setConfirmedAddress] = useState<AddressFormValues | null>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const totalPrice = getTotalPrice();
   const shippingCost = 0; // Envío gratis
@@ -92,33 +99,68 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
     setConfirmedAddress(values);
     setIsEditingAddress(false);
     setStep('review');
+
+    //TODO: Guardar la dirección en el api. 
   };
 
-  const handleConfirmOrder = () => {
-    // Generar número de orden
-    const orderNum = 'ORD-' + Date.now().toString(36).toUpperCase();
-    setOrderNumber(orderNum);
-    setStep('confirmation');
-
+  const handleConfirmOrder = async () => {
     if (confirmedAddress) {
-      // Crear el nuevo pedido
-      const newOrder: Order = {
-        id: Date.now().toString(),
-        orderNumber: orderNum,
-        date: new Date().toISOString(),
-        status: 'pending',
-        items: [...items],
-        shippingAddress: confirmedAddress as OrderAddress,
-        total: finalTotal,
-        subtotal: totalPrice,
-        tax: tax,
-        shippingCost: shippingCost,
-        paymentMethod: "Tarjeta de crédito", // O el método seleccionado
-        estimatedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // Una semana después
-      };
-      
-      // Añadir el pedido a la tienda
-      addOrder(newOrder);
+      const orderData: OrderCreateRequestDto = {
+        userId: 1, // TODO: Obtener el ID del usuario autenticado
+        items: items.map(item => ({
+          productName: item.product.name,
+          productId: item.product.id,
+          quantity: item.quantity,
+          unitPrice: item.product.price,
+          productSize: item.selectedSize,
+          productColor: item.selectedColor
+        })),
+        shippingAddress: `${confirmedAddress.street}, ${confirmedAddress.city}, ${confirmedAddress.state}, ${confirmedAddress.zipCode}, ${confirmedAddress.country}. | ${confirmedAddress.instructions ? ` Instrucciones: ${confirmedAddress.instructions}` : ''}`,
+        shippingCity: confirmedAddress.city,
+        shippingState: confirmedAddress.state,
+        shippingPostalCode: confirmedAddress.zipCode,
+        shippingCountry: confirmedAddress.country,
+        shippingAmount: shippingCost,
+        taxAmount: tax,
+        discountAmount: 0
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        console.log("Enviando datos del pedido:", orderData);
+        
+        const confirmedOrder: OrderResponseDto = await orderService.createOrder(orderData);
+
+        setOrderNumber(confirmedOrder.orderNumber);
+        setStep('confirmation');
+
+        const orderForStore: Order = {
+          id: confirmedOrder.id.toString(),
+          orderNumber: confirmedOrder.orderNumber,
+          date: new Date().toISOString(),
+          status: 'pending',
+          items: [...items],
+          shippingAddress: confirmedAddress as OrderAddress,
+          total: finalTotal,
+          subtotal: totalPrice,
+          tax: tax,
+          shippingCost: shippingCost,
+          paymentMethod: "Tarjeta de crédito", // O el método seleccionado
+          estimatedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // Una semana después
+        };
+
+        addOrder(orderForStore);
+
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Error al procesar el pedido. Por favor, inténtalo de nuevo más tarde.';
+        setError(errorMessage);
+      }
+      finally {
+        setLoading(false);
+      }
+
     }
     
     // Simular delay de procesamiento
@@ -173,7 +215,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                       <FormItem>
                         <FormLabel>Nombre</FormLabel>
                         <FormControl>
-                          <Input placeholder="Juan" {...field} />
+                          <Input placeholder="Escribe tu nombre" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -186,7 +228,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                       <FormItem>
                         <FormLabel>Apellido</FormLabel>
                         <FormControl>
-                          <Input placeholder="Pérez" {...field} />
+                          <Input placeholder="Escribe tu apellido" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -216,7 +258,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                       <FormItem>
                         <FormLabel>Ciudad</FormLabel>
                         <FormControl>
-                          <Input placeholder="Bogotá" {...field} />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -229,7 +271,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                       <FormItem>
                         <FormLabel>Departamento/Estado</FormLabel>
                         <FormControl>
-                          <Input placeholder="Cundinamarca" {...field} />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -245,7 +287,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                       <FormItem>
                         <FormLabel>Código Postal</FormLabel>
                         <FormControl>
-                          <Input placeholder="110111" {...field} />
+                          <Input {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -273,7 +315,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                     <FormItem>
                       <FormLabel>Teléfono</FormLabel>
                       <FormControl>
-                        <Input placeholder="3101234567" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -522,7 +564,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
                           className="flex gap-3">
                         <div className="w-16 h-16 bg-gray-50 rounded-md overflow-hidden flex-shrink-0">
                           <Image
-                            src={item.product.image}
+                            src={item.product.imageUrl}
                             alt={item.product.name}
                             width={64}
                             height={64}

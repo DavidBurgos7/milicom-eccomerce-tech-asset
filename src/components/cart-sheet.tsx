@@ -102,7 +102,7 @@ export function CartSheet() {
                         {/* Product Image */}
                         <div className="w-20 h-20 bg-gray-50 rounded-md overflow-hidden flex-shrink-0 border">
                           <Image
-                            src={item.product.image}
+                            src={item.product.imageUrl}
                             alt={item.product.name}
                             width={80}
                             height={80}
