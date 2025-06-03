@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner"
 import { authService } from "@/services/auth-service";
 import { LoginRequestDto } from "@/lib/models/auth/dtos/LoginRequestDto";
+import { userService } from "@/services/user-service";
+import { useUserInfoStore } from "@/lib/store/user-store";
 
 // Esquema de validación para el formulario de login
 const loginFormSchema = z.object({
@@ -32,6 +34,8 @@ const loginFormSchema = z.object({
 
 export function LoginForm() {
   const router = useRouter();
+
+  const { setUserInfo } = useUserInfoStore();
   
   // Inicializar React Hook Form con Zod
   const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -52,9 +56,23 @@ export function LoginForm() {
 
       // * Llamar al servicio de autenticación para iniciar sesión
       const response = await authService.login(newLoginDto);
-
-      console.log("Login response:", response);
       
+      const userResponse = await userService.getUserByEmail(values.email);
+
+      setUserInfo({
+        id: userResponse.id,
+        firstName: userResponse.firstName || "",
+        lastName: userResponse.lastName || "",
+        birthDate: userResponse.birthDate || "",
+        shippingAddress: userResponse.shippingAddress || "",
+        phoneNumber: userResponse.phoneNumber || "",
+        street: "",
+        city:  "",
+        state: "",
+        zipCode: "",
+        country: "",
+        instructions: "",
+      })
 
       toast("Inicio de sesión exitoso, redirigiendo a la página principal...");
       router.push("/");
