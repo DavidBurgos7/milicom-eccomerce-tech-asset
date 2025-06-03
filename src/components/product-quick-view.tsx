@@ -108,7 +108,7 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
               alt={product.name}
               fill
               priority
-              className="object-contain p-6"
+              className="object-contain p-2"
             />
             
             {/* Controles de la galería */}
