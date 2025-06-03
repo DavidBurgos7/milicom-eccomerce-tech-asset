@@ -9,7 +9,6 @@ export const userInfoSchema = z.object({
     birthDate: z.string().optional(),
     shippingAddress: z.string().optional(),
 
-    street: z.string().min(5, "La dirección debe tener al menos 5 caracteres"),
     city: z.string().min(2, "La ciudad es requerida"),
     state: z.string().min(2, "El estado/provincia es requerido"),
     zipCode: z.string().min(3, "El código postal es requerido"),
@@ -27,6 +26,7 @@ export interface UserInfoStore {
     isLoading: boolean;
     error: string | null;
     setUserInfo: (data: UserInfoFormData) => void;
+    setIsLoading: (isLoading: boolean) => void;
     clearError: () => void;
     getUserInfo: () => UserInfoFormData;
 }
@@ -41,7 +41,6 @@ export const useUserInfoStore = create<UserInfoStore>()(
             birthDate: '',
             shippingAddress: '',
             phoneNumber: '',
-            street: '',
             city: '',
             state: '',
             zipCode: '',
@@ -51,6 +50,7 @@ export const useUserInfoStore = create<UserInfoStore>()(
         isLoading: false,
         error: null,
         setUserInfo: (data: UserInfoFormData) => set({ userInfo: data }),
+        setIsLoading: (isLoading: boolean) => set({ isLoading }),
         clearError: () => set({ error: null }),
         getUserInfo: () => get().userInfo,
     }),

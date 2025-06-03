@@ -17,23 +17,24 @@ import { UpdateUserRequestDto } from '@/lib/models/users/dtos/UpdateUserRequestD
 import { userService } from '@/services/user-service';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
-import { da } from 'date-fns/locale';
-
 
 export const UserInfoForm = () => {
-  const { userInfo, setUserInfo ,isLoading, error, clearError } = useUserInfoStore();
+  const { userInfo, setUserInfo ,isLoading, setIsLoading, error, clearError } = useUserInfoStore();
 
   const form = useForm<UserFormFields>({
     resolver: zodResolver(userInfoSchema),
     defaultValues: userInfo,
+    mode: 'onChange',
   });
 
   const onSubmit = async (data: UserFormFields) => {
+    setIsLoading(true);
+
     const updateDto: UpdateUserRequestDto = {
         firstName: data.firstName,
         lastName: data.lastName,
         birthDate: data.birthDate,
-        shippingAddress: `${data.shippingAddress} ${data.street}, ${data.city}, ${data.state}, ${data.zipCode}, ${data.country}. | ${data.instructions ? ` Instrucciones: ${data.instructions}` : ''}`,
+        shippingAddress: `${data.shippingAddress}, ${data.city}, ${data.state}, ${data.zipCode}, ${data.country}. | ${data.instructions ? ` Instrucciones: ${data.instructions}` : ''}`,
         phoneNumber: data.phoneNumber,
     }
 
@@ -47,6 +48,9 @@ export const UserInfoForm = () => {
         const errorMessage = err instanceof Error ? err.message : 'Error al procesar el pedido. Por favor, inténtalo de nuevo más tarde.';
         toast.error(`Error: ${errorMessage}`);
     }
+    finally{
+        setIsLoading(false);
+    }
   };
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -59,7 +63,7 @@ export const UserInfoForm = () => {
   useEffect(() => {
     // Actualizar el formulario con la información del usuario al cargar
     form.reset(userInfo);
-  }, [userInfo]);
+  }, [userInfo, form]);
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -112,6 +116,7 @@ export const UserInfoForm = () => {
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
+                          type="button"
                           variant="outline"
                           className={cn(
                             "w-full pl-3 text-left font-normal",
