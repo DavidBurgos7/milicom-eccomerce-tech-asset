@@ -42,6 +42,7 @@ import { useApi } from "@/hooks/useApi";
 import { orderService } from "@/services/order-service";
 import { OrderCreateRequestDto } from "@/lib/models/orders/dtos/OrderCreateRequestDto";
 import { OrderResponseDto } from "@/lib/models/orders/dtos/OrderResponseDto";
+import { useUserInfoStore } from "@/lib/store/user-store";
 
 // Schema para la dirección de envío
 const addressSchema = z.object({
@@ -65,6 +66,7 @@ interface CheckoutDialogProps {
 
 export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
   const { items, getTotalPrice, clearCart } = useCartStore();
+  const { userInfo } = useUserInfoStore();
   const [step, setStep] = useState<'address' | 'review' | 'confirmation'>('address');
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -188,7 +190,22 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
         resetDialog();
       }, 300);
     }
-  }, [open]);
+
+    if (userInfo) {
+      // Prellenar el formulario con la información del usuario
+      form.reset({
+        firstName: userInfo.firstName || '',
+        lastName: userInfo.lastName || '',
+        street: userInfo.shippingAddress || '',
+        city: userInfo.city || '',
+        state: userInfo.state || '',
+        zipCode: userInfo.zipCode || '',
+        country: userInfo.country || '',
+        phone: userInfo.phoneNumber || '',
+        instructions: userInfo.instructions || '',
+      });
+    }
+  }, [open, userInfo, form]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
