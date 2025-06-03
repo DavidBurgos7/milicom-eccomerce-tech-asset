@@ -14,6 +14,14 @@ export class UserService {
     return apiClient.get<UserResponseDto>(`${this.basePath}/${id}`);
   }
 
+  async getUserByEmail(email: string): Promise<UserResponseDto> {
+    return apiClient.get<UserResponseDto>(`${this.basePath}/email/${email}`);
+  }
+
+  async getUserById(id: number): Promise<UserResponseDto> {
+    return apiClient.get<UserResponseDto>(`${this.basePath}/${id}`);
+  }
+
   async getCurrentUser(): Promise<UserResponseDto> {
     return apiClient.get<UserResponseDto>(`${this.basePath}/me`);
   }
