@@ -132,19 +132,23 @@ export function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Mi Perfil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="/orders" className="flex items-center gap-2">
-                    <span>Mis Pedidosss</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+                <Link href="/user" >
+                  <DropdownMenuItem className="flex items-center gap-2">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Mi Perfil</span>
+                  </DropdownMenuItem>
+                </Link>
+
+                <Link href="/orders" >
+                  <DropdownMenuItem className="flex items-center gap-2">
+                      <span>Mis Ordenes</span>
+                  </DropdownMenuItem>
+                </Link>
+
+                <DropdownMenuItem disabled>
                   <span>Lista de Deseos</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem disabled>
                   <span>Configuración</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
