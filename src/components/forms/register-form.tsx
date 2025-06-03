@@ -28,6 +28,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner"
+import { authService } from "@/services/auth-service";
+import { RegisterRequestDto } from "@/lib/models/auth/dtos/RegisterRequestDto";
 
 // Calcular la fecha hace 18 años para validación de mayoría de edad
 const eighteenYearsAgo = new Date();
@@ -80,17 +82,39 @@ export function RegisterForm() {
   });
 
   // Función para manejar el envío del formulario
-  function onSubmit(values: z.infer<typeof registerFormSchema>) {
+  const onSubmit = async (values: z.infer<typeof registerFormSchema>) => {
     //TODO: Elimininar luego
     console.log(values);
     
     // TODO: Por ahora simulamos una respuesta exitosa, luego conecto con la API
-    toast("Registro exitoso, redirigiendo al login...");
+    // toast("Registro exitoso, redirigiendo al login...");
+
+    const registerRequestDto: RegisterRequestDto = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      password: values.password,
+      birthDate: format(values.birthDate, "yyyy-MM-dd"), // Formatear a ISO 8601
+      shippingAddress: values.address,
+    };
+
+    try {
+      const response = await authService.register(registerRequestDto);
+      console.log("Registro exitoso:", response);
+      toast.success("Registro exitoso, redirigiendo al login...");
+      
+
+      router.push("/login");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al procesar el pedido. Por favor, inténtalo de nuevo más tarde.';
+      toast.error(`Error al registrarse: ${errorMessage}`);
+    }
+
     
     // Redirigir al login después de un registro exitoso
-    setTimeout(() => {
-      router.push("/login");
-    }, 2000);
+    // setTimeout(() => {
+    //   router.push("/login");
+    // }, 2000);
   }
 
   return (
@@ -180,11 +204,14 @@ export function RegisterForm() {
                     </FormControl>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
+                    {/* disabled={(date) => date > eighteenYearsAgo || date > new Date()} */}
                     <Calendar
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date > eighteenYearsAgo || date > new Date()}
+                      captionLayout="dropdown"
+                      fromYear={eighteenYearsAgo.getFullYear() - 100}
+                      toYear={2025}
                       initialFocus
                     />
                   </PopoverContent>

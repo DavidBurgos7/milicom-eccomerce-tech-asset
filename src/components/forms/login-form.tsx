@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner"
+import { authService } from "@/services/auth-service";
+import { LoginRequestDto } from "@/lib/models/auth/dtos/LoginRequestDto";
 
 // Esquema de validación para el formulario de login
 const loginFormSchema = z.object({
@@ -41,16 +43,25 @@ export function LoginForm() {
   });
 
   // Función para manejar el envío del formulario
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
-    console.log(values);
-    
-    // TODO: Aquí normalmente enviarías los datos a un API para autenticación
-    toast("Inicio de sesión exitoso, redirigiendo a la página principal...");
-    
-    // Redirigir a la página principal después del login
-    setTimeout(() => {
+  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    try {
+      const newLoginDto: LoginRequestDto = {
+        email: values.email,
+        password: values.password,
+      }
+
+      // * Llamar al servicio de autenticación para iniciar sesión
+      const response = await authService.login(newLoginDto);
+
+      console.log("Login response:", response);
+      
+
+      toast("Inicio de sesión exitoso, redirigiendo a la página principal...");
       router.push("/");
-    }, 1500);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al procesar el pedido. Por favor, inténtalo de nuevo más tarde.';
+      toast.error(`Error al registrarse: ${errorMessage}`);    
+    }
   }
 
   return (
