@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { searchProductsByQuery } from "@/lib/search";
 import { ProductSearchResult } from "@/lib/models/products/product-search-results";
 import { SearchResults } from "./search-results";
+import { useStockStore } from "@/lib/store/stock-store";
 
 export function SearchBar() {
   const router = useRouter();
@@ -20,6 +21,8 @@ export function SearchBar() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const { products } = useStockStore();
+
   // Función para buscar productos
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
@@ -30,15 +33,9 @@ export function SearchBar() {
     setIsLoading(true);
     
     try {
-      // Simular una llamada a API con un retraso
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Usar la función de búsqueda de libs/search
-      const results = searchProductsByQuery(query);
-      
+      const results = searchProductsByQuery(query, products);
       setSearchResults(results);
     } catch (error) {
-      console.error("Error al buscar productos:", error);
       setSearchResults([]);
     } finally {
       setIsLoading(false);

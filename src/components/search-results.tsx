@@ -5,9 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { CameraOff, Loader2 } from "lucide-react";
 import { ProductSearchResult } from "@/lib/models/products/product-search-results";
 import { formatPrice } from "@/lib/utils";
+
+const DEFAULT_PRODUCT_IMG_PLACEHOLDER: string = "/api/placeholder/400/400";
 
 interface SearchResultsProps {
   results: ProductSearchResult[];
@@ -73,18 +75,24 @@ export const SearchResults = ({
             onClick={() => handleProductClick(product.slug)}
           >
             <div className="flex-shrink-0 w-14 h-14 relative">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                sizes="56px"
-                className="object-contain"
-                onError={(e) => {
-                  // Fallback para imágenes que fallan
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder-product.png";
-                }}
-              />
+              
+
+              { product.image === DEFAULT_PRODUCT_IMG_PLACEHOLDER ? (
+                <div className="flex items-center justify-center h-full">
+                  <CameraOff className="text-gray-500" size={150}/>
+                </div>
+              ) : (
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  sizes="56px"
+                  className="object-contain"
+                  onError={(e) => {
+                    <CameraOff className="text-gray-500" size={150}/>
+                  }}
+                />
+              )}
             </div>
             <div className="ml-3 flex-grow">
               <h4 className="text-sm font-medium line-clamp-2">{product.name}</h4>

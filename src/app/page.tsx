@@ -6,17 +6,18 @@ import { ProductCard } from "@/components/product-card";
 import { ProductCarousel } from "@/components/product-carousel";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { FilterBar } from "@/components/filter-bar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Product } from "@/lib/models/products/product";
 import { productService } from "@/services/product-service";
 import { useApi } from "@/hooks/useApi";
 import { ProductResponseDto } from "@/lib/models/products/dtos/ProductResponseDto";
+import { useStockStore } from "@/lib/store/stock-store";
 
 export default function HomePage() {
   const [showFilters, setShowFilters] = React.useState(false);
   const [filters, setFilters] = React.useState({});
+  const { setProducts } = useStockStore();
 
   const { data: products, loading, error, refetch } = useApi(
     () => productService.getProductsContent(),
@@ -28,6 +29,13 @@ export default function HomePage() {
 
   // Datos de ejemplo para todos los productos
   const allProducts: Product[] = products || [];
+
+  // Actualizar el estado de los productos en el store
+  React.useEffect(() => {
+    if (products) {
+      setProducts(products as ProductResponseDto[]);
+    }
+  }, [products, setProducts]);
 
   const handleFiltersChange = (newFilters: any) => {
     setFilters(newFilters);
