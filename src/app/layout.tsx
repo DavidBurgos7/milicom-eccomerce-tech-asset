@@ -1,10 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { CartSheet } from "@/components/cart-sheet";
-import { Navbar } from "@/components/navbar";
+import { EcommerceLayout } from "@/components/ecommerce-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +28,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Navbar />
-        {children}
+        <EcommerceLayout>
+          {children}
+        </EcommerceLayout>
         <Toaster />
-        <CartSheet />
       </body>
     </html>
   );
