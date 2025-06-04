@@ -14,4 +14,5 @@ export interface Product {
   sizes?: string[] | any[]; //TODO modificar para usar los types del api
   colors?: string[] | any[]; //TODO modificar para usar los types del api
   description?: string;
+  slug?: string;
 }

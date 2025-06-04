@@ -1,15 +1,6 @@
-import { mockProducts } from "./data/mocks";
 import { Product } from "./models/products/product";
 import { ProductSearchResult } from "./models/products/product-search-results";
-
-// Función para generar un slug a partir del nombre del producto
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')  // Eliminar caracteres especiales
-    .replace(/\s+/g, '-')      // Reemplazar espacios con guiones
-    .replace(/--+/g, '-');     // Eliminar guiones duplicados
-}
+import { generateSlug } from "./utils";
 
 function mapProductsToSearchResults (products: Product[]): ProductSearchResult[] {
   return products.map(product => ({

@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart, User, Menu, Search, X, Heart, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +24,7 @@ export function Navbar() {
   const router = useRouter();
   // Estado para manejar la hidratación del carrito
   const [isMounted, setIsMounted] = React.useState(false);
-  const isAutenticated = !!localStorage.getItem("auth_token");
+  const isAutenticated: boolean = localStorage.getItem("auth_token") ? true : false; // Verifica si el usuario está autenticado
 
   // Cart store
   const { toggleCart, getItemsCount } = useCartStore();

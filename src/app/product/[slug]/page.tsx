@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,44 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
+import { useStockStore } from "@/lib/store/stock-store";
+import { useCartStore } from "@/lib/store/cart-store";
 
-// TODO: reemplazar con llamado al API real
-const getProductById = (id: string) => {
-  // Simular la obtención de un producto de lista de productos
-  return {
-    id: parseInt(id),
-    name: "Nike Air Max 270 React",
-    slug: "nike-air-max-270-react",
-    price: 129.99,
-    originalPrice: 159.99,
-    rating: 4.5,
-    reviewCount: 234,
-    image: "/api/placeholder/400/400",
-    category: "Running",
-    brand: "Nike",
-    isOnSale: true,
-    isFeatured: true,
-    isNew: false,
-    sizes: ["7", "8", "9", "10", "11"],
-    colors: ["white", "black", "blue"],
-    description: "Zapatillas de running con tecnología de amortiguación avanzada para máximo confort durante tus entrenamientos.",
-    details: [
-      "Upper: Malla transpirable y materiales sintéticos",
-      "Mediasuela: Tecnología Nike Air y React para máxima amortiguación",
-      "Suela: Patrón de tracción para superficies variadas",
-      "Ajuste: Cordones tradicionales para un ajuste seguro",
-      "Uso recomendado: Running y uso casual"
-    ]
-  };
-};
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
+export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
     const router = useRouter();
-    const [selectedSize, setSelectedSize] = useState<string | null>(null);
-    const [selectedColor, setSelectedColor] = useState<string | null>(null);
+    const { slug } = use(params);
+    const [selectedSize, setSelectedSize] = useState<any | null>(null);
+    const [selectedColor, setSelectedColor] = useState<any | null>(null);
+    const { getProductBySlug } = useStockStore();
+    const { addItem } = useCartStore();
 
-    // Simular la obtención del producto por ID
-    const product = getProductById("1"); // Simulación
+    const product = getProductBySlug(slug);
 
     const handleAddToCart = () => {
         if (!selectedSize) {
@@ -59,12 +34,12 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             return;
         }
 
-        // TODO: Implementar la lógica para añadir al carrito del cart-store.ts
-        console.log("Añadir al carrito:", { 
-            product, 
-            size: selectedSize, 
-            color: selectedColor 
-        });
+        if (!product) {
+            alert("Producto no encontrado");
+            return;
+        }
+
+        addItem(product, 1,);
     };
 
     const handleToggleFavorite = () => {
@@ -168,7 +143,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
                     <div className="aspect-square relative">
                     <Image
-                        src={product.image}
+                        src={product.imageUrl}
                         alt={product.name}
                         fill
                         className="object-contain p-6"
@@ -215,7 +190,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                     {/* Estrellas y reseñas */}
                     <div className="flex items-center mb-6">
                     <div className="flex mr-2">
-                        {renderStars(product.rating)}
+                        {renderStars(product.rating ?? 0)}
                     </div>
                     <span className="text-sm font-medium">{product.rating}</span>
                     <span className="mx-1 text-muted-foreground">•</span>
@@ -244,14 +219,14 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                     <div className="flex flex-wrap gap-2">
                         {product.colors?.map((color) => (
                         <button
-                            key={color}
+                            key={color.id}
                             className={`w-8 h-8 rounded-full border-2 ${
-                            selectedColor === color
+                            selectedColor?.colorName === color.colorName
                                 ? "ring-2 ring-primary ring-offset-2"
                                 : ""
-                            } ${colorClasses[color] || "bg-gray-200"}`}
+                            } ${colorClasses[color.colorName.toLowerCase()] || "bg-gray-200"}`}
                             onClick={() => setSelectedColor(color)}
-                            aria-label={`Color ${color}`}
+                            aria-label={`Color ${color.colorName}`}
                         />
                         ))}
                     </div>
@@ -261,18 +236,19 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                     <div className="mb-8">
                     <h3 className="text-sm font-medium mb-3">Tallas:</h3>
                     <div className="flex flex-wrap gap-2">
-                        {product.sizes?.map((size) => (
-                        <button
-                            key={size}
-                            className={`h-10 min-w-[2.5rem] px-3 rounded border ${
-                            selectedSize === size
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background hover:bg-accent border-input"
-                            }`}
-                            onClick={() => setSelectedSize(size)}
-                        >
-                            {size}
-                        </button>
+                        {product.sizes?.map((sizeObj) => (
+                            <button
+                                key={sizeObj.id}
+                                type="button"
+                                className={`h-10 min-w-[2.5rem] px-3 rounded border ${
+                                selectedSize?.size === sizeObj.size
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "bg-background hover:bg-accent border-input"
+                                }`}
+                                onClick={() => setSelectedSize(sizeObj)}
+                            >
+                                {sizeObj.size}
+                            </button>
                         ))}
                     </div>
                     </div>
@@ -321,12 +297,12 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                     <h3 className="text-lg font-medium">Acerca de este producto</h3>
                     <p>{product.description}</p>
                     <ul className="space-y-2 mt-4">
-                        {product.details?.map((detail, index) => (
+                        {/* {product.details?.map((detail, index) => (
                         <li key={index} className="flex items-start">
                             <span className="text-primary mr-2">•</span>
                             <span>{detail}</span>
                         </li>
-                        ))}
+                        ))} */}
                     </ul>
                     </div>
                 </TabsContent>
@@ -344,11 +320,11 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                         </div>
                         <div className="border-b pb-2">
                         <span className="text-sm text-muted-foreground">Colores disponibles</span>
-                        <p className="font-medium capitalize">{product.colors?.join(", ")}</p>
+                        <p className="font-medium capitalize">{product.colors?.map(colorObj => colorObj.colorName).join(", ")}</p>
                         </div>
                         <div className="border-b pb-2">
                         <span className="text-sm text-muted-foreground">Tallas disponibles</span>
-                        <p className="font-medium">{product.sizes?.join(", ")}</p>
+                        <p className="font-medium">{product.sizes?.map(sizeObj => sizeObj.size).join(", ")}</p>
                         </div>
                     </div>
                     </div>
@@ -364,7 +340,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                         <div className="text-center">
                         <div className="text-4xl font-bold">{product.rating}</div>
                         <div className="flex justify-center mt-1">
-                            {renderStars(product.rating)}
+                            {renderStars(product.rating ?? 0)}
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
                             {product.reviewCount} reseñas
@@ -381,14 +357,14 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                                 <div 
                                 className="h-full bg-yellow-400 rounded-full" 
                                 style={{ 
-                                    width: `${star === Math.round(product.rating) ? "60%" : 
-                                            star > Math.round(product.rating) ? "10%" : "30%"}` 
+                                    width: `${star === Math.round(product.rating ?? 0) ? "60%" : 
+                                            star > Math.round(product.rating ?? 0) ? "10%" : "30%"}` 
                                 }} 
                                 />
                             </div>
                             <span className="text-sm text-muted-foreground ml-2 w-8">
-                                {star === Math.round(product.rating) ? "60%" : 
-                                star > Math.round(product.rating) ? "10%" : "30%"}
+                                {star === Math.round(product.rating ?? 0) ? "60%" : 
+                                star > Math.round(product.rating ?? 0) ? "10%" : "30%"}
                             </span>
                             </div>
                         ))}
