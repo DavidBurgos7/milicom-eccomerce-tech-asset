@@ -17,6 +17,7 @@ import { useCartStore } from "@/lib/store/cart-store";
 import { SearchBar } from "./search-bar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useUserInfoStore } from "@/lib/store/user-store";
+import { resetAllStores } from "@/lib/store/store-manager";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -56,9 +57,7 @@ export function Navbar() {
 
   const handleLogOut = () => {
     localStorage.removeItem("auth_token");
-    localStorage.removeItem("cart-storage");
-    localStorage.removeItem("orders-storage");
-    localStorage.removeItem("user-storage");
+    resetAllStores(); // Reset all stores to clear user data
 
     // Redirect to login page
     router.push("/login");

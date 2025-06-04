@@ -9,4 +9,5 @@ export interface OrdersStore {
     cancelOrder: (id: string) => void;
     getAllOrders: () => Order[];
     setOrders: (orders: Order[]) => void;
+    reset: () => void;
   }

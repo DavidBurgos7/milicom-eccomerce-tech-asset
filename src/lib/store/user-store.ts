@@ -29,30 +29,36 @@ export interface UserInfoStore {
     setIsLoading: (isLoading: boolean) => void;
     clearError: () => void;
     getUserInfo: () => UserInfoFormData;
+    reset: () => void;
 }
   
+const initialUserInfo: UserInfoFormData = {
+  id: 0,
+  firstName: '',
+  lastName: '',
+  birthDate: '',
+  shippingAddress: '',
+  phoneNumber: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  country: '',
+  instructions: '',
+}
+
 export const useUserInfoStore = create<UserInfoStore>()(
   persist(
     (set, get) => ({
-        userInfo: {
-            id: 0,
-            firstName: '',
-            lastName: '',
-            birthDate: '',
-            shippingAddress: '',
-            phoneNumber: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            country: '',
-            instructions: '',
-        },
+        userInfo: initialUserInfo,
         isLoading: false,
         error: null,
         setUserInfo: (data: UserInfoFormData) => set({ userInfo: data }),
         setIsLoading: (isLoading: boolean) => set({ isLoading }),
         clearError: () => set({ error: null }),
         getUserInfo: () => get().userInfo,
+        reset: () => {
+          set({ userInfo: initialUserInfo, isLoading: false, error: null });
+        },
     }),
     {
       name: 'user-storage',

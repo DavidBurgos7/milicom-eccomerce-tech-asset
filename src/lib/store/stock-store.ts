@@ -5,24 +5,15 @@ import { generateSlug } from '../utils';
 
 interface StockStore {
     products: Product[];
-    fetchProducts: () => Promise<void>;
     setProducts: (products: Product[]) => void;
     getProductBySlug: (slug: string) => Product | undefined;
+    reset: () => void;
 }
 
 export const useStockStore = create<StockStore>()(
   persist(
     (set, get) => ({
       products: [],
-      fetchProducts: async () => {
-        try {
-          const response = await fetch('/api/products');
-          const data: Product[] = await response.json();
-          set({ products: data });
-        } catch (error) {
-          console.error('Failed to fetch products:', error);
-        }
-      },
       setProducts: (products) => {
         products.map(product => {
           if (!product.slug) {
@@ -34,7 +25,10 @@ export const useStockStore = create<StockStore>()(
       },
       getProductBySlug: (slug) => {
         return get().products.find(product => product.slug === slug);
-      }
+      },
+      reset: () => {
+        set({ products: []});
+      },
     }),
     {
       name: 'stock-storage',

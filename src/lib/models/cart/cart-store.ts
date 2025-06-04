@@ -13,4 +13,5 @@ export interface CartStore {
   getItemsCount: () => number;
   getTotalPrice: () => number;
   getUniqueItemsCount: () => number;
+  reset: () => void;
 }

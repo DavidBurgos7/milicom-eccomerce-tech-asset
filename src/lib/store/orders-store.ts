@@ -42,7 +42,10 @@ export const useOrdersStore = create<OrdersStore>()(
       getAllOrders: () => {
         return get().orders;
       },
-      setOrders: (orders: Order[]) => { set({ orders }); }
+      setOrders: (orders: Order[]) => { set({ orders }); },
+      reset: () => {
+        set({ orders: []});
+      },
     }),
     {
       name: 'orders-storage',

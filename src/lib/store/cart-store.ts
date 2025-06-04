@@ -75,6 +75,9 @@ export const useCartStore = create<CartStore>()(
       getUniqueItemsCount: () => {
         return get().items.length;
       },
+      reset: () => {
+        set({ items: [], isOpen: false });
+      },
     }),
     {
       name: 'cart-storage',
