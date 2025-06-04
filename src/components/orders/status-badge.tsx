@@ -2,37 +2,49 @@ import React from "react";
 import { Clock, Package, Truck, CheckCircle2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Order } from "@/lib/models/orders/order";
+import { OrderStatus } from "@/lib/models/orders/dtos/OrderStatus";
 
 interface StatusBadgeProps {
-  status: Order["status"];
+  // status: Order["status"];
+  status: OrderStatus;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  const variants: Record<Order["status"], { color: string; icon: JSX.Element, label: string }> = {
-    pending: { 
+  const variants: Record<OrderStatus, { color: string; icon: JSX.Element, label: string }> = {
+    PENDING: { 
       color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100", 
       icon: <Clock className="h-3 w-3 mr-1" />,
       label: "Pendiente"
     },
-    processing: { 
+    PROCESSING: { 
       color: "bg-blue-100 text-blue-800 hover:bg-blue-100", 
       icon: <Package className="h-3 w-3 mr-1" />,
       label: "Procesando" 
     },
-    shipped: { 
+    SHIPPED: { 
       color: "bg-purple-100 text-purple-800 hover:bg-purple-100", 
       icon: <Truck className="h-3 w-3 mr-1" />,
       label: "Enviado" 
     },
-    delivered: { 
+    DELIVERED: { 
       color: "bg-green-100 text-green-800 hover:bg-green-100", 
       icon: <CheckCircle2 className="h-3 w-3 mr-1" />,
       label: "Entregado" 
     },
-    cancelled: { 
+    CANCELLED: { 
       color: "bg-red-100 text-red-800 hover:bg-red-100", 
       icon: <X className="h-3 w-3 mr-1" />,
       label: "Cancelado" 
+    },
+    RETURNED: { 
+      color: "bg-orange-100 text-orange-800 hover:bg-orange-100", 
+      icon: <X className="h-3 w-3 mr-1" />,
+      label: "Devuelto" 
+    },
+    CONFIRMED: {
+      color: "bg-green-100 text-green-800 hover:bg-green-100",
+      icon: <CheckCircle2 className="h-3 w-3 mr-1" />,
+      label: "Confirmado"
     }
   };
 

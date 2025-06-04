@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, Search, ShoppingBag } from "lucide-react";
@@ -8,26 +8,87 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useOrdersStore, initializeOrdersStore } from "@/lib/store/orders-store";
+import { useOrdersStore } from "@/lib/store/orders-store";
 import { OrderCard } from "@/components/orders/order-card";
+import { orderService } from "@/services/order-service";
+import { useUserInfoStore } from "@/lib/store/user-store";
+import { useApi } from "@/hooks/useApi";
+import { Order } from "@/lib/models/orders/order";
+import { OrderResponseDto } from "@/lib/models/orders/dtos/OrderResponseDto";
+import { OrderItemResponseDto } from '../../lib/models/orders/dtos/OrderItemResponseDto';
+import { CartItem } from "@/lib/models/cart/cart-item";
+import { OrderStatus } from "@/lib/models/orders/dtos/OrderStatus";
 
 
 export default function OrdersPage() {
   const router = useRouter();
-  const { orders, getAllOrders } = useOrdersStore();
+  const { orders, setOrders } = useOrdersStore();
   const [mounted, setMounted] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { userInfo } = useUserInfoStore();
+
+  const { data: ordersByUser, loading, error, refetch, execute } = useApi(
+    () => orderService.getUserOrdersContent(userInfo.id),
+    { immediate: false }
+  );
+
+  
   
   useEffect(() => {
-    // Inicializar la tienda con datos mock si está vacía
-    initializeOrdersStore();
-    setMounted(true);
-  }, []);
+    if (userInfo) {
+      execute();
+    }
 
-  if (!mounted) {
-    return <div className="container mx-auto px-4 py-8">Cargando...</div>;
-  }
+    if (ordersByUser) {
+      console.log("Orders by user:", ordersByUser);
+
+      const ordersToStore: Order[] = ordersByUser.map((orderResp: OrderResponseDto) =>  {
+
+        const order: Order = {
+          id: orderResp.id.toString(),
+          orderNumber: orderResp.orderNumber,
+          status: orderResp.status,
+          items: orderResp.items.map((item: OrderItemResponseDto) => {
+            const product: CartItem = {
+              product: {
+                id: item.id,
+                name: item.productName,
+                price: item.unitPrice,
+                imageUrl: item.productImageUrl || "",
+                category: "",
+                brand: "",
+              },
+              quantity: item.quantity,
+            }
+            return product;
+          }),
+          shippingAddress: {
+            firstName: userInfo.firstName || "",
+            lastName: userInfo.lastName || "",
+            city: orderResp.shippingCity,
+            country: orderResp.shippingCountry || "",
+            state: orderResp.shippingState,
+            zipCode: orderResp.shippingPostalCode,
+            instructions: orderResp.customerNotes || "",
+            phone: userInfo.phoneNumber || "",
+            street: orderResp.shippingAddress,
+          },
+          date: orderResp.createdAt,
+          total: orderResp.totalAmount,
+          subtotal: orderResp.subtotal,
+          tax: orderResp.taxAmount,
+          shippingCost: orderResp.shippingAmount,
+          paymentMethod: "Tarjeta de Crédito",
+        };
+
+        return order;
+      });
+
+      setOrders(ordersToStore);
+    }
+  }, [userInfo]);
   
   // Filtrar órdenes por estado y búsqueda
   const filteredOrders = orders
@@ -49,16 +110,16 @@ export default function OrdersPage() {
   // Contar órdenes por estado
   const counts = {
     all: orders.length,
-    pending: orders.filter(o => o.status === "pending").length,
-    processing: orders.filter(o => o.status === "processing").length,
-    shipped: orders.filter(o => o.status === "shipped").length,
-    delivered: orders.filter(o => o.status === "delivered").length,
-    cancelled: orders.filter(o => o.status === "cancelled").length,
+    pending: orders.filter(o => o.status === OrderStatus.PENDING).length,
+    processing: orders.filter(o => o.status === OrderStatus.PROCESSING).length,
+    shipped: orders.filter(o => o.status === OrderStatus.SHIPPED).length,
+    delivered: orders.filter(o => o.status === OrderStatus.DELIVERED).length,
+    cancelled: orders.filter(o => o.status === OrderStatus.CANCELLED).length,
   };
 
   // Handler para ir al detalle del pedido
   const handleViewOrderDetails = (orderId: string) => {
-    router.push(`/pedidos/${orderId}`);
+    router.push(`/orders/${orderId}`);
   };
 
   return (

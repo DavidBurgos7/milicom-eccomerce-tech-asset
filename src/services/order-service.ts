@@ -3,13 +3,14 @@ import { OrderResponseDto } from '@/lib/models/orders/dtos/OrderResponseDto';
 import { OrderStatusUpdateRequestDto } from '@/lib/models/orders/dtos/OrderStatusUpdateRequestDto';
 import { OrderUpdateRequestDto } from '@/lib/models/orders/dtos/OrderUpdateRequestDto';
 import { apiClient } from '../lib/api';
+import { PagedResponse } from '@/lib/models/api/PagedResponse';
 
 export class OrderService {
   private readonly basePath = '/api/orders';
 
-  async getOrders(userId?: number): Promise<OrderResponseDto[]> {
+  async getOrders(userId?: number): Promise<PagedResponse<OrderResponseDto>> {
     const url = userId ? `${this.basePath}?userId=${userId}` : this.basePath;
-    return apiClient.get<OrderResponseDto[]>(url);
+    return apiClient.getPaged<OrderResponseDto>(url);
   }
 
   async getOrder(id: number): Promise<OrderResponseDto> {
@@ -32,8 +33,13 @@ export class OrderService {
     return apiClient.patch<OrderResponseDto>(`${this.basePath}/${id}/cancel`, { reason });
   }
 
-  async getUserOrders(userId: number): Promise<OrderResponseDto[]> {
-    return apiClient.get<OrderResponseDto[]>(`${this.basePath}/user/${userId}`);
+  async getUserOrders(userId: number): Promise<PagedResponse<OrderResponseDto>>{
+    return apiClient.getPaged<OrderResponseDto>(`${this.basePath}/user/${userId}`);
+  }
+
+  async getUserOrdersContent(userId: number): Promise<OrderResponseDto[]> {
+    const orders = await this.getUserOrders(userId);
+    return orders.content;
   }
 }
 

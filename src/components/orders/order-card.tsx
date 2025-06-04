@@ -3,11 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CameraOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Order } from "@/lib/models/orders/order";
 import { StatusBadge } from "./status-badge";
+import { OrderStatus } from "@/lib/models/orders/dtos/OrderStatus";
+
+const DEFAULT_PRODUCT_IMG_PLACEHOLDER: string = "/api/placeholder/400/400";
 
 interface OrderCardProps {
   order: Order;
@@ -22,7 +25,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
   const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
   
   // Obtener la imagen del primer item
-  const firstItemImage = order.items[0]?.product.image || "/api/placeholder/400/400";
+  const firstItemImage = order.items[0]?.product.imageUrl || "";
 
   const handleViewDetails = () => {
     if (onViewDetails) {
@@ -44,13 +47,18 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
       <CardContent className="pb-2">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-16 h-16 bg-gray-50 rounded-md overflow-hidden relative">
-            <Image
-              src={firstItemImage}
-              alt={order.items[0]?.product.name || "Producto"}
-              fill
-              className="object-contain"
-              sizes="64px"
-            />
+            { firstItemImage ? (
+                <Image
+                  src={firstItemImage}
+                  alt={order.items[0]?.product.name || "Producto"}
+                  fill
+                  className="object-contain"
+                  sizes="64px"
+                />
+              ) : (
+                <CameraOff className="text-gray-500" size={64}/>
+              )
+            }
             {totalItems > 1 && (
               <div className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-tl-md text-xs font-medium px-1">
                 +{totalItems - 1}
@@ -68,7 +76,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
           </div>
         </div>
 
-        {order.status === 'shipped' && order.trackingNumber && (
+        {order.status === OrderStatus.SHIPPED && order.trackingNumber && (
           <div className="text-xs bg-muted p-2 rounded mb-2">
             <p className="font-medium">Seguimiento: {order.trackingNumber}</p>
             {order.estimatedDeliveryDate && (
@@ -79,7 +87,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
           </div>
         )}
 
-        {order.status === 'cancelled' && (
+        {order.status === OrderStatus.CANCELLED && (
           <div className="text-xs flex items-start gap-1 bg-red-50 p-2 rounded mb-2 text-red-800">
             <AlertTriangle className="h-3 w-3 mt-0.5 flex-shrink-0" />
             <span>Este pedido ha sido cancelado.</span>

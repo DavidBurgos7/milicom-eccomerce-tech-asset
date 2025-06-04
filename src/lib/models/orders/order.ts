@@ -1,4 +1,5 @@
 import { CartItem } from "../cart/cart-item";
+import { OrderStatus } from "./dtos/OrderStatus";
 
 export interface OrderAddress {
   firstName: string;
@@ -17,7 +18,7 @@ export interface Order {
   items: CartItem[];
   orderNumber: string;
   date: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: OrderStatus;
   shippingAddress: OrderAddress;
   total: number;
   subtotal: number;

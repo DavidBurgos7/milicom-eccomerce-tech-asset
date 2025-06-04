@@ -43,6 +43,7 @@ import { orderService } from "@/services/order-service";
 import { OrderCreateRequestDto } from "@/lib/models/orders/dtos/OrderCreateRequestDto";
 import { OrderResponseDto } from "@/lib/models/orders/dtos/OrderResponseDto";
 import { useUserInfoStore } from "@/lib/store/user-store";
+import { OrderStatus } from "@/lib/models/orders/dtos/OrderStatus";
 
 // Schema para la dirección de envío
 const addressSchema = z.object({
@@ -101,14 +102,12 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
     setConfirmedAddress(values);
     setIsEditingAddress(false);
     setStep('review');
-
-    //TODO: Guardar la dirección en el api. 
   };
 
   const handleConfirmOrder = async () => {
     if (confirmedAddress) {
       const orderData: OrderCreateRequestDto = {
-        userId: 1, // TODO: Obtener el ID del usuario autenticado
+        userId: userInfo.id,
         items: items.map(item => ({
           productName: item.product.name,
           productId: item.product.id,
@@ -131,8 +130,6 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
       setError(null);
 
       try {
-        console.log("Enviando datos del pedido:", orderData);
-        
         const confirmedOrder: OrderResponseDto = await orderService.createOrder(orderData);
 
         setOrderNumber(confirmedOrder.orderNumber);
@@ -142,7 +139,7 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
           id: confirmedOrder.id.toString(),
           orderNumber: confirmedOrder.orderNumber,
           date: new Date().toISOString(),
-          status: 'pending',
+          status: OrderStatus.PENDING,
           items: [...items],
           shippingAddress: confirmedAddress as OrderAddress,
           total: finalTotal,
@@ -161,14 +158,9 @@ export function CheckoutDialog({ open, onOpenChange }: CheckoutDialogProps) {
       }
       finally {
         setLoading(false);
+        clearCart();
       }
-
     }
-    
-    // Simular delay de procesamiento
-    setTimeout(() => {
-      clearCart();
-    }, 2000);
   };
 
   const copyOrderNumber = () => {

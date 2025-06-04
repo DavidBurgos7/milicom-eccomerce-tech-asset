@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -14,43 +14,35 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useOrdersStore, initializeOrdersStore } from "@/lib/store/orders-store";
+import { useOrdersStore } from "@/lib/store/orders-store";
 import { StatusBadge } from "@/components/orders/status-badge";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { OrderSummary } from "@/components/orders/order-summary";
 import { ShippingAddress } from "@/components/orders/shipping-address";
 import { OrderProductList } from "@/components/orders/order-product-list";
+import { OrderStatus } from "@/lib/models/orders/dtos/OrderStatus";
 
 
-export default function OrderDetailPage({ params }: { params: { id: string } }) {
+export default function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
   const router = useRouter();
   const { getOrderById, cancelOrder, updateOrderStatus } = useOrdersStore();
-  const [mounted, setMounted] = useState(false);
   const [order, setOrder] = useState<ReturnType<typeof getOrderById>>(undefined);
   
-  useEffect(() => {
-    // Inicializar la tienda con datos mock si está vacía
-    initializeOrdersStore();
-    setMounted(true);
-  }, []);
+  const { orderId } = use(params);
 
   useEffect(() => {
-    if (mounted) {
-      const foundOrder = getOrderById(params.id);
-      setOrder(foundOrder);
-    }
-  }, [params.id, getOrderById, mounted]);
-
-  if (!mounted) {
-    return <div className="container mx-auto px-4 py-8">Cargando...</div>;
-  }
+    const foundOrder = getOrderById(orderId);
+    console.log("Order found:", foundOrder);
+    
+    setOrder(foundOrder);
+  }, [orderId, getOrderById]);
 
   if (!order) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">Pedido no encontrado</h1>
         <p className="mb-8">Lo sentimos, el pedido que buscas no existe o ha sido removido.</p>
-        <Button onClick={() => router.push("/pedidos")}>
+        <Button onClick={() => router.push("/orders")}>
           Ver todos mis pedidos
         </Button>
       </div>
@@ -63,7 +55,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   const handleCancelOrder = () => {
     if (window.confirm("¿Estás seguro de que deseas cancelar este pedido?")) {
       cancelOrder(order.id);
-      setOrder({ ...order, status: 'cancelled' });
+      setOrder({ ...order, status: OrderStatus.CANCELLED });
     }
   };
 
@@ -119,7 +111,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
           </Button>
           
           {/* Solo mostrar el botón de cancelar si el pedido está pendiente o procesando */}
-          {(order.status === 'pending' || order.status === 'processing') && (
+          {(order.status === OrderStatus.PENDING || order.status === OrderStatus.PROCESSING) && (
             <Button 
               variant="destructive" 
               size="sm"
@@ -137,7 +129,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         {/* Columna izquierda: Detalles y timeline */}
         <div className="lg:col-span-2 space-y-6">
           {/* Mensaje de cancelación si aplica */}
-          {order.status === 'cancelled' && (
+          {order.status === OrderStatus.CANCELLED && (
             <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-md flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
               <div>
@@ -163,11 +155,11 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                 <div className="mt-6 p-3 border border-dashed rounded-md">
                   <p className="text-sm font-medium mb-2">Demo: Cambiar estado del pedido</p>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus('pending')}>Pendiente</Button>
-                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus('processing')}>Procesando</Button>
-                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus('shipped')}>Enviado</Button>
-                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus('delivered')}>Entregado</Button>
-                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus('cancelled')}>Cancelado</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(OrderStatus.PENDING)}>Pendiente</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(OrderStatus.PROCESSING)}>Procesando</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(OrderStatus.SHIPPED)}>Enviado</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(OrderStatus.DELIVERED)}>Entregado</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(OrderStatus.CANCELLED)}>Cancelado</Button>
                   </div>
                 </div>
               )}

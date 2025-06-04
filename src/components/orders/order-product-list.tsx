@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/lib/models/cart/cart-item";
+import { CameraOff } from "lucide-react";
 
 interface OrderProductListProps {
   items: CartItem[];
@@ -14,13 +15,19 @@ export function OrderProductList({ items }: OrderProductListProps) {
       {items.map((item, index) => (
         <div key={`${item.product.id}-${index}`} className="flex gap-4">
           <div className="w-20 h-20 bg-gray-50 rounded-md overflow-hidden relative flex-shrink-0">
-            <Image
-              src={item.product.image}
-              alt={item.product.name}
-              fill
-              className="object-contain"
-              sizes="80px"
-            />
+            { item.product.imageUrl ? (
+                <Image
+                src={item.product.imageUrl}
+                alt={item.product.name}
+                fill
+                className="object-contain"
+                sizes="80px"
+              />
+              ) : (
+                <CameraOff className="text-gray-500" size={80}/>
+              )
+            }
+            
           </div>
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:justify-between">

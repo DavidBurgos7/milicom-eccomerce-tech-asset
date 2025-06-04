@@ -8,4 +8,5 @@ export interface OrdersStore {
     updateOrderStatus: (id: string, status: Order['status']) => void;
     cancelOrder: (id: string) => void;
     getAllOrders: () => Order[];
+    setOrders: (orders: Order[]) => void;
   }
