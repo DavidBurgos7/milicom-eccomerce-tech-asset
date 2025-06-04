@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCartStore } from "@/lib/store/cart-store";
 import { SearchBar } from "./search-bar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { useUserInfoStore } from "@/lib/store/user-store";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -24,7 +25,9 @@ export function Navbar() {
   const router = useRouter();
   // Estado para manejar la hidratación del carrito
   const [isMounted, setIsMounted] = React.useState(false);
-  const isAutenticated: boolean = localStorage.getItem("auth_token") ? true : false; // Verifica si el usuario está autenticado
+
+  const {userInfo} = useUserInfoStore();
+  const isAutenticated: boolean = userInfo ? true : false; // Verifica si el usuario está autenticado
 
   // Cart store
   const { toggleCart, getItemsCount } = useCartStore();
