@@ -40,10 +40,11 @@ export default function OrdersPage() {
     if (userInfo) {
       execute();
     }
+  }, [userInfo]);
 
+  useEffect(() => {
     if (ordersByUser) {
-      console.log("Orders by user:", ordersByUser);
-
+      console.log("Orders by user updated:", ordersByUser);
       const ordersToStore: Order[] = ordersByUser.map((orderResp: OrderResponseDto) =>  {
 
         const order: Order = {
@@ -85,10 +86,9 @@ export default function OrdersPage() {
 
         return order;
       });
-
       setOrders(ordersToStore);
     }
-  }, [userInfo]);
+  }, [ordersByUser]);
   
   // Filtrar órdenes por estado y búsqueda
   const filteredOrders = orders
