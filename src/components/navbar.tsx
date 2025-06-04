@@ -2,8 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShoppingCart, User, Menu, Search, X, Heart } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ShoppingCart, User, Menu, Search, X, Heart, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,14 +16,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCartStore } from "@/lib/store/cart-store";
 import { SearchBar } from "./search-bar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
-
+  const router = useRouter();
   // Estado para manejar la hidratación del carrito
   const [isMounted, setIsMounted] = React.useState(false);
+  const isAutenticated = !!localStorage.getItem("auth_token");
 
   // Cart store
   const { toggleCart, getItemsCount } = useCartStore();
@@ -49,6 +51,16 @@ export function Navbar() {
     { name: "Ofertas", path: "/ofertas" },
     { name: "Nuevos", path: "/nuevos" },
   ];
+
+  const handleLogOut = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("cart-storage");
+    localStorage.removeItem("orders-storage");
+    localStorage.removeItem("user-storage");
+
+    // Redirect to login page
+    router.push("/login");
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -122,40 +134,81 @@ export function Navbar() {
             </Button>
 
             {/* Avatar/Usuario */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/avatar.jpg" alt="Usuario" />
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <Link href="/user" >
-                  <DropdownMenuItem className="flex items-center gap-2">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Mi Perfil</span>
-                  </DropdownMenuItem>
-                </Link>
+            {isAutenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src="/avatar.jpg" alt="Usuario" />
+                        <AvatarFallback>U</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <Link href="/user" >
+                      <DropdownMenuItem className="flex items-center gap-2">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Mi Perfil</span>
+                      </DropdownMenuItem>
+                    </Link>
 
-                <Link href="/orders" >
-                  <DropdownMenuItem className="flex items-center gap-2">
-                      <span>Mis Ordenes</span>
-                  </DropdownMenuItem>
-                </Link>
+                    <Link href="/orders" >
+                      <DropdownMenuItem className="flex items-center gap-2">
+                          <span>Mis Ordenes</span>
+                      </DropdownMenuItem>
+                    </Link>
 
-                <DropdownMenuItem disabled>
-                  <span>Lista de Deseos</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                  <span>Configuración</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Cerrar Sesión</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <DropdownMenuItem disabled>
+                      <span>Lista de Deseos</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled>
+                      <span>Configuración</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogOut} >
+                      <span>Cerrar Sesión</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/login">
+                        <Button variant="default" size="icon">
+                          <User className="h-5 w-5" />
+                          {/* Texto oculto para accesibilidad */}
+                          <span className="sr-only">
+                            Iniciar Sesión
+                          </span>
+                        </Button>
+                      </Link> 
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span>Iniciar sesión</span>
+                    </TooltipContent>
+                  </Tooltip>
+          
+                  <span className="text-sm text-muted-foreground">o</span>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/register">
+                        <Button variant="outline" size="icon">
+                          <UserPlus className="h-5 w-5" />
+                          {/* Texto oculto para accesibilidad */}
+                          <span className="sr-only">
+                            Registrarse
+                          </span>
+                        </Button>
+                      </Link>  
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <span>Registrarse</span>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )
+            }
 
             {/* Menú móvil */}
             <Button

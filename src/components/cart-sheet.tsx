@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart-store";
 import { CheckoutDialog } from "./checkout-dialog";
+import { toast } from "sonner";
 
 export function CartSheet() {
   const {
@@ -45,6 +46,13 @@ export function CartSheet() {
   const uniqueItemsCount = getUniqueItemsCount();
 
   const handleCheckout = () => {
+
+    const isAuthenticated = localStorage.getItem("auth_token");
+    if (!isAuthenticated) {
+      toast.error("Debes iniciar sesión para proceder al checkout");
+      return;
+    }
+
     console.log("Proceder al checkout");
     // Cerrar el carrito
     setCartOpen(false);
